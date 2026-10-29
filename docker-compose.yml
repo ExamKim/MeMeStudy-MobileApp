@@ -1,0 +1,39 @@
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: memestudy-mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: memestudy
+      MYSQL_USER: memeuser
+      MYSQL_PASSWORD: memepassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./backend/src/main/resources/db/seed_rounds.sql:/docker-entrypoint-initdb.d/01_seed_rounds.sql:ro
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    networks:
+      - memestudy-network
+
+  adminer:
+    image: adminer:latest
+    container_name: memestudy-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
+    networks:
+      - memestudy-network
+
+volumes:
+  mariadb_data:
+
+networks:
+  memestudy-network:
+    driver: bridge
+
